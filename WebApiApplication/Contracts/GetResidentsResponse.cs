@@ -1,3 +1,3 @@
 namespace WebApiApplication.Contracts;
 
-public record GetResidentsResponse(List<ResidentsDto> residents);
+public record GetResidentsResponse(List<ResidentsDto> Residents);

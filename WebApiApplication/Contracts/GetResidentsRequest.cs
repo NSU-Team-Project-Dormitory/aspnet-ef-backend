@@ -1,3 +1,3 @@
 namespace WebApiApplication.Contracts;
 
-public record GetResidentsRequest(string? RoomId);
+public record GetResidentsRequest(string? RoomTitle);

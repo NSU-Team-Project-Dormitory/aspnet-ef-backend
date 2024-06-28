@@ -28,6 +28,14 @@ public class RoomRepository : IRepository<RoomEntity>
                ?? throw new Exception($"No such floor with id {id}");
     }
     
+    public async Task<RoomEntity> GetByTitle(string title)
+    {
+        return await _dbContext.Rooms
+                   .AsNoTracking()
+                   .FirstOrDefaultAsync(f => f.Title == title)
+               ?? throw new Exception($"No such floor with title {title}");
+    }
+    
     public async Task<List<RoomEntity>> GetByFloorId(Guid floorId)
     {
         return await _dbContext.Rooms

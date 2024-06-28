@@ -1,4 +1,5 @@
 using DataAccess;
+using DataAccess.Models;
 using DataAccess.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using WebApiApplication.Contracts;
@@ -32,21 +33,58 @@ public class ApiController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateResident([FromBody] CreateResidentRequest request, CancellationToken ct)
     {
+        var newResident = new ResidentEntity
+        {
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Patronymic = request.Patronymic
+        };
+        if (!string.IsNullOrEmpty(request.RoomNumber))
+        {
+            try
+            {
+                var room = await _roomRepository.GetByTitle(request.RoomNumber);
+                newResident.RoomId = room.Id;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
+        await _residentRepository.Add(newResident);
         return Ok();
     }
     
     [HttpGet(Name = "GetResidentsByRoomNumber")]
     public async Task<IActionResult> Get([FromQuery] GetResidentsRequest request, CancellationToken ct)
     {
-        // var residentsQuery = _dbContext.Residents
-        //     .Where(s => string.IsNullOrWhiteSpace(request.RoomId) ||
-        //                 s.RoomNumber.ToLower().Contains(request.RoomId.ToLower()));
-        // residentsQuery = residentsQuery.OrderBy(n => n.RoomNumber);
-        //
-        // var residentDtos = await residentsQuery.Select(
-        //     s => new ResidentsDto(s.FirstName, s.LastName, s.Patronymic, s.RoomNumber))
-        //     .ToListAsync(ct);
-        // return Ok(new GetResidentsResponse(residentDtos));
-        return Ok();
+        if (!string.IsNullOrEmpty(request.RoomTitle))
+        {
+            try
+            {
+                var room = await _roomRepository.GetByTitle(request.RoomTitle);
+                var residents = room.Residents;
+                List<ResidentsDto> residentsDtos = new List<ResidentsDto>();
+
+                if (residents != null){
+                    foreach (var resident in residents)  
+                    {
+                        residentsDtos.Add(new ResidentsDto(
+                            resident.FirstName,
+                            resident.LastName,
+                            resident.Patronymic,
+                            resident.Room != null ? resident.Room.Title : null));
+                    }
+                }
+
+                return Ok(new GetResidentsResponse(residentsDtos));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+        return NotFound();
     }
 }
