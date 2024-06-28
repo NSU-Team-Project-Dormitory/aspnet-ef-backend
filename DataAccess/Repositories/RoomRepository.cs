@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories;
 
-public class RoomRepository
+public class RoomRepository : IRepository<RoomEntity>
 {
     private readonly DormitoryDbContext _dbContext;
 
@@ -20,6 +20,14 @@ public class RoomRepository
             .ToListAsync();
     }
     
+    public async Task<RoomEntity> GetById(Guid id)
+    {
+        return await _dbContext.Rooms
+                   .AsNoTracking()
+                   .FirstOrDefaultAsync(f => f.Id == id)
+               ?? throw new Exception($"No such floor with id {id}");
+    }
+    
     public async Task<List<RoomEntity>> GetByFloorId(Guid floorId)
     {
         return await _dbContext.Rooms
@@ -28,34 +36,25 @@ public class RoomRepository
             .ToListAsync();
     }
     
-    public async Task Add(Guid id, string title, int capacity, Guid floorId)
+    public async Task Add(RoomEntity room)
     {
-        var newRoom = new RoomEntity
-        {
-            Id = id,
-            Title = title,
-            Capacity = capacity,
-            FloorId = floorId
-        };
-        _dbContext.Rooms.Add(newRoom);
+        _dbContext.Rooms.Add(room);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task Update(Guid id, string title, int capacity, Guid floorId)
+    public async Task Update(RoomEntity room)
     {
-        var updateRoom = await _dbContext.Rooms
-                           .AsNoTracking()
-                           .FirstOrDefaultAsync(r => r.Id == id)
-                       ?? throw new Exception($"No such room with title {title} and id {id} for update");
-        updateRoom.Title = title;
-        updateRoom.Capacity = capacity;
-        updateRoom.FloorId = floorId;
-
-        _dbContext.Rooms.Update(updateRoom);
+        _dbContext.Rooms.Update(room);
         await _dbContext.SaveChangesAsync();
     }
     
-    public async Task Delete(Guid id)
+    public async Task Delete(RoomEntity room)
+    {
+        _dbContext.Rooms.Remove(room);
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    public async Task DeleteById(Guid id)
     {
         var removeRoom = await _dbContext.Rooms
                            .AsNoTracking()

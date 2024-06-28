@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories;
 
-public class ResidentRepository
+public class ResidentRepository : IRepository<ResidentEntity>
 {
     private readonly DormitoryDbContext _dbContext;
 
@@ -44,50 +44,26 @@ public class ResidentRepository
             .ToListAsync();
     }
     
-    public async Task Add(Guid id, 
-        string firstName, 
-        string lastName, 
-        string patronymic,
-        string roomTitle)
+    public async Task Add(ResidentEntity resident)
     {
-        RoomEntity room = await _dbContext.Rooms
-                              .AsNoTracking()
-                              .FirstOrDefaultAsync(r => r.Title == roomTitle)
-                          ?? throw new Exception($"No such room with title {roomTitle}");
-        
-        var resident = new ResidentEntity
-        {
-            Id = id,
-            FirstName = firstName,
-            LastName = lastName,
-            Patronymic = patronymic,
-            RoomId = room.Id
-        };
         _dbContext.Add(resident);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task Update(
-        Guid id, 
-        string firstName, 
-        string lastName, 
-        string patronymic,
-        Guid roomId)
+    public async Task Update(ResidentEntity resident)
     {
-        ResidentEntity resident = await _dbContext.Residents
-                                       .AsNoTracking()
-                                       .FirstOrDefaultAsync(r => r.Id == id)
-                                   ?? throw new Exception("No such resident to update");
-        resident.FirstName = firstName;
-        resident.LastName = lastName;
-        resident.Patronymic = patronymic;
-        resident.RoomId = roomId;
-
         _dbContext.Residents.Update(resident);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task Delete(Guid id)
+    public async Task Delete(ResidentEntity resident)
+    {
+        _dbContext.Residents.Remove(resident);
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    
+    public async Task DeleteById(Guid id)
     {
         ResidentEntity residentEntity = await _dbContext.Residents
                                              .AsNoTracking()

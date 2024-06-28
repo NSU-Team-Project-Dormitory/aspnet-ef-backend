@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories;
 
-public class FloorRepository
+public class FloorRepository : IRepository<FloorEntity>
 {
     private readonly DormitoryDbContext _dbContext;
 
@@ -28,37 +28,32 @@ public class FloorRepository
             ?? throw new Exception($"No such floor with id {id}");
     }
 
-    public async Task Add(Guid id, string title)
+    public async Task Add(FloorEntity floor)
     {
-        var newFloor = new FloorEntity
-        {
-            Id = id,
-            Title = title
-        };
-        _dbContext.Floors.Add(newFloor);
+        _dbContext.Floors.Add(floor);
         await _dbContext.SaveChangesAsync();
     }
     
-    public async Task Update(Guid id, string title)
+    public async Task Update(FloorEntity floor)
     {
-        var updateFloor = await _dbContext.Floors
-                             .AsNoTracking()
-                             .FirstOrDefaultAsync(r => r.Id == id)
-                         ?? throw new Exception($"No such floor with title {title} and id {id} for update");
-        updateFloor.Title = title;
-
-        _dbContext.Floors.Update(updateFloor);
+        _dbContext.Floors.Update(floor);
         await _dbContext.SaveChangesAsync();
     }
     
-    public async Task Delete(Guid id)
+    public async Task Delete(FloorEntity floor)
     {
-        var removeFloor = await _dbContext.Floors
-                             .AsNoTracking()
-                             .FirstOrDefaultAsync(r => r.Id == id)
-                         ?? throw new Exception($"No such floor with id {id} for delete");
+        _dbContext.Floors.Remove(floor);
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    public async Task DeleteById(Guid id)
+    {
+        FloorEntity floor = await _dbContext.Floors
+                                            .AsNoTracking()
+                                            .FirstOrDefaultAsync(r => r.Id == id)
+                                        ?? throw new Exception("No such resident to delete");
 
-        _dbContext.Floors.Remove(removeFloor);
+        _dbContext.Floors.Remove(floor);
         await _dbContext.SaveChangesAsync();
     }
 }
