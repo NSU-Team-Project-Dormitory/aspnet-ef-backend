@@ -1,0 +1,21 @@
+﻿services:
+#  webapiapplication:
+#    image: webapiapplication
+#    build:
+#      context: .
+#      dockerfile: WebApiApplication/Dockerfile
+
+  postgres:
+    image: postgres
+    container_name: pg
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "database"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "5555:5432"
+
+volumes:
+  postgres-data:
