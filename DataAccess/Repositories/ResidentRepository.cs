@@ -29,12 +29,11 @@ public class ResidentRepository : IResidentRepository
             .ToListAsync();
     }
     
-    public async Task<ResidentEntity> GetById(Guid id)
+    public async Task<ResidentEntity?> GetById(Guid id)
     {
         return await _dbContext.Residents
             .AsNoTracking()
-            .FirstOrDefaultAsync(r => r.Id == id)
-            ?? throw new Exception($"No such resident with id {id}");
+            .FirstOrDefaultAsync(r => r.Id == id);
     }
     
     public async Task<List<ResidentEntity>> GetByRoomTitle(string roomTitle)

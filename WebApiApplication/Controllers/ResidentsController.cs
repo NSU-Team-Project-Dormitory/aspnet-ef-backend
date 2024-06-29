@@ -30,8 +30,8 @@ public class ResidentsController : ControllerBase
         _floorRepository = floorRepository;
     }
     
-    [HttpPost]
-    public async Task<IActionResult> CreateResident([FromBody] CreateResidentRequest request, CancellationToken ct)
+    [HttpPost("CreateResident")]
+    public async Task<IActionResult> CreateResident([FromBody] CreateResidentRequest request)
     {
         var newResident = new ResidentEntity
         {
@@ -41,49 +41,77 @@ public class ResidentsController : ControllerBase
         };
         if (!string.IsNullOrEmpty(request.RoomNumber))
         {
-            try
-            {
-                var room = await _roomRepository.GetByTitle(request.RoomNumber);
-                newResident.RoomId = room.Id;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            var room = await _roomRepository.GetByTitle(request.RoomNumber);
+            newResident.RoomId = room?.Id;
         }
 
         await _residentRepository.Add(newResident);
         return Ok();
     }
+
+    [HttpPost("CreateRoom")]
+    public async Task<IActionResult> CreateRoom([FromBody] CreateRoomRequest request)
+    {
+        var currFloor = await _floorRepository.GetByTitle(request.FloorTitle);
+        if (currFloor == null)
+        {
+            return NotFound($"No such floor with title {request.FloorTitle}");
+        }
+        var newRoom = new RoomEntity
+        {
+            Title = request.RoomTitle,
+            Capacity = request.Capacity,
+            FloorId = currFloor.Id
+        };
+        await _roomRepository.Add(newRoom);
+        return Ok();
+    }
+
+    [HttpPost("AddResidentToRoom")]
+    public async Task<IActionResult> AddResidentToRoom([FromBody] AddResidentToRoomRequest request)
+    {
+        var resident = await _residentRepository.GetById(request.ResidentId);
+        if (resident == null)
+        {
+            return NotFound($"No such resident with id {request.ResidentId}");
+        }
+        
+        var room = await _roomRepository.GetByTitle(request.RoomTitle);
+        if (room == null)
+        {
+            return NotFound($"No such room with title {request.RoomTitle}");
+        }
+
+        resident.RoomId = room.Id;
+        room.Residents.Add(resident);
+        await _residentRepository.Update(resident);
+        // await _roomRepository.Update(room);
+        return Ok();
+    }
     
-    [HttpGet("GetResidentsByRoom")]
-    public async Task<IActionResult> Get([FromQuery] GetResidentsRequest request, CancellationToken ct)
+    [HttpGet("GetResidentsByRoomTitle")]
+    public async Task<IActionResult> GetResidentsByRoomTitle([FromQuery] GetResidentsRequest request)
     {
         if (!string.IsNullOrEmpty(request.RoomTitle))
         {
-            try
+            var room = await _roomRepository.GetByTitle(request.RoomTitle);
+            if (room == null)
             {
-                var room = await _roomRepository.GetByTitle(request.RoomTitle);
-                var residents = room.Residents;
-                List<ResidentsDto> residentsDtos = new List<ResidentsDto>();
-
-                if (residents != null){
-                    foreach (var resident in residents)  
-                    {
-                        residentsDtos.Add(new ResidentsDto(
-                            resident.FirstName,
-                            resident.LastName,
-                            resident.Patronymic,
-                            resident.Room != null ? resident.Room.Title : null));
-                    }
-                }
-
-                return Ok(new GetResidentsResponse(residentsDtos));
+                return NotFound($"No such room with title {request.RoomTitle}");
             }
-            catch (Exception e)
+            var residents = room.Residents;
+            List<ResidentsDto> residentsDtos = new List<ResidentsDto>();
+            
+            foreach (var resident in residents)  
             {
-                Console.WriteLine(e);
+                residentsDtos.Add(new ResidentsDto(
+                    resident.FirstName,
+                    resident.LastName,
+                    resident.Patronymic,
+                    resident.Room?.Title));
             }
+
+            return Ok(new GetResidentsResponse(residentsDtos));
         }
         return NotFound();
     }

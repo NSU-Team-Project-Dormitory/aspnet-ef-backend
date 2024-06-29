@@ -20,20 +20,18 @@ public class RoomRepository : IRoomRepository
             .ToListAsync();
     }
     
-    public async Task<RoomEntity> GetById(Guid id)
+    public async Task<RoomEntity?> GetById(Guid id)
     {
         return await _dbContext.Rooms
                    .AsNoTracking()
-                   .FirstOrDefaultAsync(f => f.Id == id)
-               ?? throw new Exception($"No such room with id {id}");
+                   .FirstOrDefaultAsync(f => f.Id == id);
     }
     
-    public async Task<RoomEntity> GetByTitle(string title)
+    public async Task<RoomEntity?> GetByTitle(string title)
     {
         return await _dbContext.Rooms
                    .AsNoTracking()
-                   .FirstAsync(f => f.Title == title)
-               ?? throw new Exception($"No such room with title {title}");
+                   .FirstOrDefaultAsync(f => f.Title == title);
     }
     
     public async Task<List<RoomEntity>> GetByFloorId(Guid floorId)
