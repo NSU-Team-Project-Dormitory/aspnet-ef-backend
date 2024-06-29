@@ -11,6 +11,7 @@ public class ResidentConfiguration : IEntityTypeConfiguration<ResidentEntity>
         builder.HasKey(k => k.Id);
         builder
             .HasOne(r => r.Room)
-            .WithMany(room => room.Residents);
+            .WithMany(room => room.Residents)
+            .HasForeignKey(r => r.RoomId);
     }
 }

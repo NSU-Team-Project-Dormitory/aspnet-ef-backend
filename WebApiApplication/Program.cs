@@ -1,4 +1,6 @@
 using DataAccess;
+using DataAccess.Models;
+using DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +19,10 @@ builder.Services.AddDbContext<DormitoryDbContext>(
     {
         options.UseNpgsql(configuration.GetConnectionString("Database"));
     });
+
+builder.Services.AddScoped<IResidentRepository, ResidentRepository>();
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<IFloorRepository, FloorRepository>();
 
 var app = builder.Build();
 

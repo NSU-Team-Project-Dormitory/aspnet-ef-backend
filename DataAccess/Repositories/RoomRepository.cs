@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories;
 
-public class RoomRepository : IRepository<RoomEntity>
+public class RoomRepository : IRoomRepository
 {
     private readonly DormitoryDbContext _dbContext;
 
@@ -20,20 +20,20 @@ public class RoomRepository : IRepository<RoomEntity>
             .ToListAsync();
     }
     
-    public async Task<RoomEntity> GetById(Guid id)
+    public async Task<RoomEntity?> GetById(Guid id)
     {
         return await _dbContext.Rooms
                    .AsNoTracking()
-                   .FirstOrDefaultAsync(f => f.Id == id)
-               ?? throw new Exception($"No such floor with id {id}");
+                   .Include(room => room.Residents)
+                   .FirstOrDefaultAsync(f => f.Id == id);
     }
     
-    public async Task<RoomEntity> GetByTitle(string title)
+    public async Task<RoomEntity?> GetByTitle(string title)
     {
         return await _dbContext.Rooms
                    .AsNoTracking()
-                   .FirstOrDefaultAsync(f => f.Title == title)
-               ?? throw new Exception($"No such floor with title {title}");
+                   .Include(room => room.Residents)
+                   .FirstOrDefaultAsync(f => f.Title == title);
     }
     
     public async Task<List<RoomEntity>> GetByFloorId(Guid floorId)
@@ -41,6 +41,7 @@ public class RoomRepository : IRepository<RoomEntity>
         return await _dbContext.Rooms
             .AsNoTracking()
             .Where(r => r.Id == floorId)
+            .Include(room => room.Residents)
             .ToListAsync();
     }
     

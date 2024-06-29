@@ -8,7 +8,7 @@ public class RoomEntity
 
     public int Capacity { get; set; } = 0;
 
-    public List<ResidentEntity>? Residents { get; set; }
+    public ICollection<ResidentEntity> Residents { get; set; } = new List<ResidentEntity>();
     
     public Guid FloorId { get; set; }
     

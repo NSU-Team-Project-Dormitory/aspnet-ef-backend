@@ -11,10 +11,10 @@ public class RoomConfiguration : IEntityTypeConfiguration<RoomEntity>
         builder.HasKey(k => k.Id);
         builder
             .HasMany(room => room.Residents)
-            .WithOne(res => res.Room)
-            .HasForeignKey(res => res.RoomId);
+            .WithOne(res => res.Room);
         builder
             .HasOne(room => room.Floor)
-            .WithMany(floor => floor.Rooms);
+            .WithMany(floor => floor.Rooms)
+            .HasForeignKey(room => room.FloorId);
     }
 }

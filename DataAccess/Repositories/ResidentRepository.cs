@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories;
 
-public class ResidentRepository : IRepository<ResidentEntity>
+public class ResidentRepository : IResidentRepository
 {
     private readonly DormitoryDbContext _dbContext;
 
@@ -40,7 +40,7 @@ public class ResidentRepository : IRepository<ResidentEntity>
     {
         return await _dbContext.Residents
             .AsNoTracking()
-            .Where(r => r.Room.Title == roomTitle)
+            .Where(r => r.Room != null && r.Room.Title == roomTitle)
             .ToListAsync();
     }
     
@@ -68,7 +68,7 @@ public class ResidentRepository : IRepository<ResidentEntity>
         ResidentEntity residentEntity = await _dbContext.Residents
                                              .AsNoTracking()
                                              .FirstOrDefaultAsync(r => r.Id == id)
-                                         ?? throw new Exception("No such resident to delete");
+                                         ?? throw new Exception($"No such resident with if {id} to delete");
 
         _dbContext.Residents.Remove(residentEntity);
         await _dbContext.SaveChangesAsync();
