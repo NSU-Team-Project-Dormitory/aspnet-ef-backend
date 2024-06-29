@@ -8,17 +8,17 @@ namespace WebApiApplication.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class ApiController : ControllerBase
+public class ResidentsController : ControllerBase
 {
     private readonly DormitoryDbContext _dbContext;
     
-    private readonly ILogger<ApiController> _logger;
+    private readonly ILogger<ResidentsController> _logger;
     private readonly IResidentRepository _residentRepository;
     private readonly IFloorRepository _floorRepository;
     private readonly IRoomRepository _roomRepository;
 
-    public ApiController(DormitoryDbContext dbContext, 
-                        ILogger<ApiController> logger,
+    public ResidentsController(DormitoryDbContext dbContext, 
+                        ILogger<ResidentsController> logger,
                         IResidentRepository residentRepository,
                         IRoomRepository roomRepository,
                         IFloorRepository floorRepository)

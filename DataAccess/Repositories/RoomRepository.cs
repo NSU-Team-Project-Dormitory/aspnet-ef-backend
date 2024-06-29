@@ -32,7 +32,7 @@ public class RoomRepository : IRoomRepository
     {
         return await _dbContext.Rooms
                    .AsNoTracking()
-                   .FirstOrDefaultAsync(f => f.Title == title)
+                   .FirstAsync(f => f.Title == title)
                ?? throw new Exception($"No such room with title {title}");
     }
     
