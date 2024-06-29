@@ -13,15 +13,15 @@ public class ApiController : ControllerBase
     private readonly DormitoryDbContext _dbContext;
     
     private readonly ILogger<ApiController> _logger;
-    private readonly ResidentRepository _residentRepository;
-    private readonly FloorRepository _floorRepository;
-    private readonly RoomRepository _roomRepository;
+    private readonly IResidentRepository _residentRepository;
+    private readonly IFloorRepository _floorRepository;
+    private readonly IRoomRepository _roomRepository;
 
     public ApiController(DormitoryDbContext dbContext, 
                         ILogger<ApiController> logger,
-                        ResidentRepository residentRepository,
-                        RoomRepository roomRepository,
-                        FloorRepository floorRepository)
+                        IResidentRepository residentRepository,
+                        IRoomRepository roomRepository,
+                        IFloorRepository floorRepository)
     {
         _dbContext = dbContext;
         _logger = logger;
@@ -56,7 +56,7 @@ public class ApiController : ControllerBase
         return Ok();
     }
     
-    [HttpGet(Name = "GetResidentsByRoomNumber")]
+    [HttpGet("GetResidentsByRoom")]
     public async Task<IActionResult> Get([FromQuery] GetResidentsRequest request, CancellationToken ct)
     {
         if (!string.IsNullOrEmpty(request.RoomTitle))

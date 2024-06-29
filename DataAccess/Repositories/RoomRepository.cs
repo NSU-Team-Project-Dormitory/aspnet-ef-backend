@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories;
 
-public class RoomRepository : IRepository<RoomEntity>
+public class RoomRepository : IRoomRepository
 {
     private readonly DormitoryDbContext _dbContext;
 
@@ -25,7 +25,7 @@ public class RoomRepository : IRepository<RoomEntity>
         return await _dbContext.Rooms
                    .AsNoTracking()
                    .FirstOrDefaultAsync(f => f.Id == id)
-               ?? throw new Exception($"No such floor with id {id}");
+               ?? throw new Exception($"No such room with id {id}");
     }
     
     public async Task<RoomEntity> GetByTitle(string title)
@@ -33,7 +33,7 @@ public class RoomRepository : IRepository<RoomEntity>
         return await _dbContext.Rooms
                    .AsNoTracking()
                    .FirstOrDefaultAsync(f => f.Title == title)
-               ?? throw new Exception($"No such floor with title {title}");
+               ?? throw new Exception($"No such room with title {title}");
     }
     
     public async Task<List<RoomEntity>> GetByFloorId(Guid floorId)

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories;
 
-public class FloorRepository : IRepository<FloorEntity>
+public class FloorRepository : IFloorRepository
 {
     private readonly DormitoryDbContext _dbContext;
 
