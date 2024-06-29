@@ -24,6 +24,7 @@ public class RoomRepository : IRoomRepository
     {
         return await _dbContext.Rooms
                    .AsNoTracking()
+                   .Include(room => room.Residents)
                    .FirstOrDefaultAsync(f => f.Id == id);
     }
     
@@ -31,6 +32,7 @@ public class RoomRepository : IRoomRepository
     {
         return await _dbContext.Rooms
                    .AsNoTracking()
+                   .Include(room => room.Residents)
                    .FirstOrDefaultAsync(f => f.Title == title);
     }
     
@@ -39,6 +41,7 @@ public class RoomRepository : IRoomRepository
         return await _dbContext.Rooms
             .AsNoTracking()
             .Where(r => r.Id == floorId)
+            .Include(room => room.Residents)
             .ToListAsync();
     }
     
