@@ -6,5 +6,5 @@ public class FloorEntity
     
     public string Title { get; set; } = String.Empty;
 
-    public List<RoomEntity>? Rooms { get; set; }
+    public List<RoomEntity> Rooms { get; set; } = new List<RoomEntity>();
 }

@@ -11,7 +11,6 @@ namespace WebApiApplication.Controllers;
 public class ResidentsController : ControllerBase
 {
     private readonly DormitoryDbContext _dbContext;
-    
     private readonly ILogger<ResidentsController> _logger;
     private readonly IResidentRepository _residentRepository;
     private readonly IFloorRepository _floorRepository;
@@ -42,29 +41,28 @@ public class ResidentsController : ControllerBase
         if (!string.IsNullOrEmpty(request.RoomNumber))
         {
             var room = await _roomRepository.GetByTitle(request.RoomNumber);
-            newResident.RoomId = room?.Id;
+            if (room != null)
+            {
+                newResident.RoomId = room?.Id;
+                room?.Residents.Add(newResident);
+                await _roomRepository.Update(room);
+            }
         }
 
         await _residentRepository.Add(newResident);
-        return Ok();
+        return Ok($"Resident {newResident.FirstName} created");
     }
-
-    [HttpPost("CreateRoom")]
-    public async Task<IActionResult> CreateRoom([FromBody] CreateRoomRequest request)
+    
+    [HttpPost("DeleteResident")]
+    public async Task<IActionResult> DeleteResident([FromBody] DeleteResidentRequest request)
     {
-        var currFloor = await _floorRepository.GetByTitle(request.FloorTitle);
-        if (currFloor == null)
+        var deleteResident = await _residentRepository.GetById(request.ResidentId);
+        if (deleteResident == null)
         {
-            return NotFound($"No such floor with title {request.FloorTitle}");
+            return NotFound($"No such resident with id {request.ResidentId}");
         }
-        var newRoom = new RoomEntity
-        {
-            Title = request.RoomTitle,
-            Capacity = request.Capacity,
-            FloorId = currFloor.Id
-        };
-        await _roomRepository.Add(newRoom);
-        return Ok();
+        await _residentRepository.Delete(deleteResident);
+        return Ok($"Resident with id {deleteResident.Id} deleted");
     }
 
     [HttpPost("AddResidentToRoom")]
@@ -85,8 +83,8 @@ public class ResidentsController : ControllerBase
         resident.RoomId = room.Id;
         room.Residents.Add(resident);
         await _residentRepository.Update(resident);
-        // await _roomRepository.Update(room);
-        return Ok();
+        await _roomRepository.Update(room);
+        return Ok($"Resident {resident.FirstName} added to room {room.Title}");
     }
     
     [HttpGet("GetResidentsByRoomTitle")]
@@ -100,7 +98,7 @@ public class ResidentsController : ControllerBase
                 return NotFound($"No such room with title {request.RoomTitle}");
             }
             var residents = room.Residents;
-            List<ResidentsDto> residentsDtos = new List<ResidentsDto>();
+            var residentsDtos = new List<ResidentsDto>();
             
             foreach (var resident in residents)  
             {
