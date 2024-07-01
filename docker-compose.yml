@@ -1,10 +1,10 @@
 ﻿services:
   
-  client:
-    image: client
-    container_name: client
-    ports:
-      - "3000:3000"
+#  client:
+#    image: client
+#    container_name: client
+#    ports:
+#      - "80:3000"
   
   webapi:
     image: webapi
@@ -34,16 +34,15 @@
     ports:
       - "5432:5432"
   
-  proxy:
-    image: nginx
-    container_name: proxy
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    ports:
-      - "80:80"
-    depends_on:
-      - webapi
-      - client
+#  proxy:
+#    image: nginx
+#    container_name: proxy
+#    volumes:
+#      - ./nginx.conf:/etc/nginx/nginx.conf
+#    ports:
+#      - "80:80"
+#    depends_on:
+#      - webapi
 
 volumes:
   postgres-data:
